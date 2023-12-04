@@ -35,8 +35,8 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Future<void> downloadInvoice() async {
-    String invoiceUrl =
-        'http://192.168.68.102:5000/download_invoice'; // Replace with the actual URL to download the invoice
+    String invoiceUrl = SharedData.ipAddress +
+        '/download_invoice'; // Replace with the actual URL to download the invoice
     try {
       final response = await http.post(
         Uri.parse(invoiceUrl),
@@ -59,7 +59,7 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   void fetchOrders() async {
-    String orderUrl = 'http://192.168.68.102:5000/api/data';
+    String orderUrl = SharedData.ipAddress + '/api/data';
     try {
       final response =
           await http.get(Uri.parse(orderUrl)).timeout(Duration(seconds: 10));

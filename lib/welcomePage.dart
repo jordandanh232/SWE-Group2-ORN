@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
-import "package:awesome_notifications/awesome_notifications.dart";
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 int selectedHour = 0;
 int selectedMinute = 0;
-
-@override
-void initState() {}
 
 class WelcomePage extends StatelessWidget {
   triggerNotification() async {
     String localTimeZone =
         await AwesomeNotifications().getLocalTimeZoneIdentifier();
     AwesomeNotifications().createNotification(
-        content: NotificationContent(
-            id: 10,
-            channelKey: 'scheduled',
-            title: 'Order Ready Notify!',
-            body: 'Hey! We placed an Order for you! Verify it!'),
-        schedule: NotificationCalendar(
-            hour: selectedHour,
-            minute: selectedMinute,
-            timeZone: localTimeZone,
-            repeats: true));
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'scheduled',
+        title: 'Order Ready Notify!',
+        body: 'Hey! Check on your order!',
+      ),
+      schedule: NotificationCalendar(
+        hour: selectedHour,
+        minute: selectedMinute,
+        timeZone: localTimeZone,
+        repeats: true,
+      ),
+    );
   }
 
   @override
@@ -29,17 +29,32 @@ class WelcomePage extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-            title: Text('Order Ready Notify'), backgroundColor: Colors.orange),
+          title: Text('Order Ready Notify'),
+          backgroundColor: Colors.orange,
+        ),
         body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              _showTimePickerDialog(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  Colors.orange, // Set the background color of the button
-            ),
-            child: Text('When do you want to be Notified?'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Image goes here
+              Image.asset(
+                'assets/bell.png', // Replace with the path to your image asset
+                height: 100, // Adjust the height as needed
+              ),
+              SizedBox(
+                height: 20,
+              ), // Add some space between the image and button
+              // ElevatedButton
+              ElevatedButton(
+                onPressed: () async {
+                  await _showTimePickerDialog(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                ),
+                child: Text('When do you want to be Notified?'),
+              ),
+            ],
           ),
         ),
       ),
@@ -57,7 +72,10 @@ class WelcomePage extends StatelessWidget {
     if (pickedTime != null && pickedTime != selectedTime) {
       selectedHour = pickedTime.hour;
       selectedMinute = pickedTime.minute;
-      triggerNotification();
+      // Delay execution to allow UI thread to finish its current frame
+      Future.delayed(Duration.zero, () {
+        triggerNotification();
+      });
       print('Selected time: ${pickedTime.format(context)}');
     }
   }
