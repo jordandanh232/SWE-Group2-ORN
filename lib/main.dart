@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'welcomePage.dart';
 import 'profilePage.dart';
 import 'orderPage.dart';
+import 'sharedData.dart'; // Import the file where SharedData class is defined
 import "package:awesome_notifications/awesome_notifications.dart";
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -64,6 +65,7 @@ class MyBottomNavigationBar extends StatefulWidget {
 
 class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   int _currentIndex = 0;
+  final TextEditingController _ipAddressController = TextEditingController();
 
   final List<Widget> _screens = [
     WelcomePage(),
@@ -79,6 +81,67 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         showNotificationPermissionDialog(context);
       }
     });
+
+    // Use Future.delayed to execute the showIpAddressDialog after the frame has been built
+    Future.delayed(Duration.zero, () {
+      showIpAddressDialog(context);
+    });
+  }
+
+  Future<void> showIpAddressDialog(BuildContext context) async {
+    final TextEditingController _ipAddressController = TextEditingController();
+    final TextEditingController _portController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Enter Server Details'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _ipAddressController,
+                decoration: InputDecoration(hintText: 'IP Address'),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _portController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(hintText: 'Port'),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Please enter the IP address and port from the server. Either of the two IP addresses will work. Do NOT use 0.0.0.0 as the IP address.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Concatenate "http://" with IP address and port
+                String ipAddress = _ipAddressController.text;
+                String port = _portController.text;
+                String combinedAddress = 'http://$ipAddress:$port';
+
+                // Store the combined address in the SharedData class
+                SharedData.ipAddress = combinedAddress;
+
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
